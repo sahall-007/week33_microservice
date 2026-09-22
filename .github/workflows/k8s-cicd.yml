@@ -17,15 +17,18 @@ jobs:
       matrix:
         service:
           - name: api-gateway
-            context: ./api-gateway
+            context: .
+            dockerfile: ./api-gateway/Dockerfile
             image: sahal007/week33-api-gateway
 
           - name: user-service
-            context: ./user-service
+            context: .
+            dockerfile: ./user-service/Dockerfile
             image: sahal007/week33-user-service
 
           - name: order-service
-            context: ./order-service
+            context: .
+            dockerfile: ./order-service/Dockerfile
             image: sahal007/week33-order-service
 
     steps:
@@ -42,6 +45,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.service.context }}
+          file: ${{ matrix.service.dockerfile }}
           push: true
           tags: |
             ${{ matrix.service.image }}:latest

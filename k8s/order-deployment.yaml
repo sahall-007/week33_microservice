@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+
+spec:
+  replicas: 2
+
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
+  selector:
+    matchLabels:
+      app: order-service
+
+  template:
+    metadata:
+      labels:
+        app: order-service
+
+    spec:
+      containers:
+        - name: order-service
+          image: week33-order-service:latest
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: 3002
+
+          env:
+            - name: POSTGRESQL_URL
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: POSTGRESQL_URL
+
+            - name: USER_GRPC_URL
+              value: user-service:50051
+
+            - name: JWT_ACCESS
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: JWT_ACCESS

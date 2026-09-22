@@ -1,0 +1,132 @@
+
+services:
+  # -------------------------
+  # API Gateway
+  # -------------------------
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      USER_SERVICE_URL: http://user-service:3001
+      ORDER_SERVICE_URL: http://order-service:3002
+
+    depends_on:
+      - user-service
+      - order-service
+
+    restart: unless-stopped
+
+
+  # -------------------------
+  # User Service
+  # -------------------------
+  user-service:
+    build:
+      context: .
+      dockerfile: user-service/Dockerfile
+
+    ports:
+      - "3001:3001"    
+      - "50051:50051"
+
+    environment:
+      MONGODB_URL: mongodb://mongodb:27017/user_service
+      GRPC_PORT: 50051
+
+    depends_on:
+      mongodb:
+        condition: service_healthy
+
+    restart: unless-stopped
+
+
+  # -------------------------
+  # Order Service
+  # -------------------------
+  order-service:
+    build:
+      context: .
+      dockerfile: order-service/Dockerfile
+
+    ports:
+      - "3002:3002"
+
+    environment:
+      POSTGRESQL_URL: postgresql://postgres:NOBODYFF333@postgres:5432/test
+      USER_GRPC_URL: user-service:50051    
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+
+    restart: unless-stopped
+
+
+  # -------------------------
+  # MongoDB
+  # -------------------------
+  mongodb:
+    image: mongo:8
+
+    ports:
+      - "27017:27017"
+
+    volumes:
+      - mongodb_data:/data/db
+
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--quiet",
+          "--eval",
+          "db.adminCommand('ping')"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    restart: unless-stopped
+
+
+  # -------------------------
+  # PostgreSQL
+  # -------------------------
+  postgres:
+    image: postgres:17-alpine
+
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: NOBODYFF333
+      POSTGRES_DB: test
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U postgres -d order_service"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    restart: unless-stopped
+
+
+volumes:
+  mongodb_data:
+  postgres_data:

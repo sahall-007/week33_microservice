@@ -30,10 +30,13 @@ spec:
               value: postgres
 
             - name: POSTGRES_PASSWORD
-              value: NOBODYFF333
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: POSTGRES_PASSWORD
 
             - name: POSTGRES_DB
-              value: test
+              value: test        
 
           volumeMounts:
             - name: postgres-storage

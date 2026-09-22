@@ -24,7 +24,8 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: week33-user-service:latest
+          image: sahal007/week33-user-service:latest
+          # image: week33-user-service:latest
           imagePullPolicy: IfNotPresent
 
           ports:

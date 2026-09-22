@@ -24,7 +24,8 @@ spec:
     spec:
       containers:
         - name: api-gateway
-          image: week33-api-gateway:latest
+          image: sahal007/week33-api-gateway:latest
+          # image: week33-api-gateway:latest
           imagePullPolicy: IfNotPresent
 
           ports:

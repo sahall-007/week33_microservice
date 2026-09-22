@@ -23,8 +23,9 @@ spec:
 
     spec:
       containers:
-        - name: order-service
-          image: week33-order-service:latest
+        - name: order-service      
+          image: sahal007/week33-order-service:latest
+          # image: week33-order-service:latest
           imagePullPolicy: IfNotPresent
 
           ports:
